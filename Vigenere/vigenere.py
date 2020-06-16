@@ -1,6 +1,7 @@
 import sys
 import math
 
+
 def calc_language_e_dictionary(language):
     lang_dict = get_count_dict(language)
     for entry in lang_dict:
@@ -48,10 +49,10 @@ def get_key(text, blocklength):
     for iterator in range(blocklength):
         blocked_text = text[iterator::blocklength]
         chi_list = list()
-        for i in range(0, 128):
-            decrypted_text_list = [chr((ord(letter) - i) % 128) for letter in blocked_text]
-            chi_list.append(calc_chi(get_count_dict(decrypted_text_list)))
-        key_list.append(get_index_of_min(chi_list)) #for smallest chi the textcolumn is nearest to the original
+        for possible_key in range(0, 128):
+            decrypted_text_list = [chr((ord(letter) - possible_key) % 128) for letter in blocked_text]
+            chi_list.append(calc_metric(get_count_dict(decrypted_text_list)))
+        key_list.append(get_index_of_min(chi_list)) #for smallest value the textcolumn is nearest to the original
     return key_list                                  # distribution of letters
 
 
@@ -61,24 +62,24 @@ def find_smallest_mr(average_list):# because smallest mr is likely to be the key
             return i + 1
 
 
-def calc_chi(count_dict): #calculate a metric that is small if the number of letters is close to the expected number in
-    chi = 0                # of letters in the original language
+def calc_metric(count_dict): #calculate a metric that is small if the number of letters is close to the expected number
+                          # of letters in the original language
     chi_sum = 0
-    for i in count_dict:
-        if i not in LANG_DICT:
+    for entry in count_dict:
+        if entry not in LANG_DICT:
             expected_count = 0
         else:
-            expected_count = LANG_DICT[i]
-        count = count_dict[i]
+            expected_count = LANG_DICT[entry]
+        count = count_dict[entry]
         chi = (count - expected_count) ** 2
         chi_sum += chi
     return math.sqrt(chi_sum)
 
 
-def get_index_of_min(list):
-    for i, value in enumerate(list):
-        if value == min(list):
-            return i
+def get_index_of_min(iterable):
+    for index, value in enumerate(iterable):
+        if value == min(iterable):
+            return index
 
 
 def decrypt(crypto_text, key_list):
@@ -86,6 +87,7 @@ def decrypt(crypto_text, key_list):
     for place_nr, letter in enumerate(crypto_text):
         decrypt_text_list.append(chr((ord(letter) - key_list[place_nr % len(key_list)]) % 128))
     return str("".join(decrypt_text_list))
+
 
 LANGUAGE = open("lorem.txt", "r").read()    #Language is Lorem in this case but can be changed if needed
 LANG_DICT = calc_language_e_dictionary(LANGUAGE)
