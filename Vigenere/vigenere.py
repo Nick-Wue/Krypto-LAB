@@ -74,6 +74,7 @@ def calc_chi(count_dict): #calculate a metric that is small if the number of let
         chi_sum += chi
     return math.sqrt(chi_sum)
 
+
 def get_index_of_min(list):
     for i, value in enumerate(list):
         if value == min(list):
@@ -86,15 +87,20 @@ def decrypt(crypto_text, key_list):
         decrypt_text_list.append(chr((ord(letter) - key_list[place_nr % len(key_list)]) % 128))
     return str("".join(decrypt_text_list))
 
-
 LANGUAGE = open("lorem.txt", "r").read()    #Language is Lorem in this case but can be changed if needed
 LANG_DICT = calc_language_e_dictionary(LANGUAGE)
 crypt_in = open(sys.argv[1], "r")
 crypt_text = crypt_in.read()
+print("Guessing block length..")
 block_length = find_smallest_mr(brute_rauheit(crypt_text))
+print("Likely block length: {}".format(block_length))
+print("Calculating keys..")
 key = get_key(crypt_text, block_length)
+print("Keys: {}".format(key))
+print("Decrypting..")
 clear_text = decrypt(crypt_text, key)
 clear_out = open(sys.argv[2], "w")
+print("Done!")
 clear_out.write(clear_text)
 crypt_in.close()
 clear_out.close()
