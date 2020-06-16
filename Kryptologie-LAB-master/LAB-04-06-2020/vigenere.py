@@ -40,7 +40,6 @@ def brute_rauheit(text): #calc rauheit to every possible blocklength,return list
             mr_sum += calc_rauheit(iter_text)
         avg_mr = mr_sum / blocklength
         average_list.append(avg_mr)
-        print("Blocklength: {}, MR : {}".format(blocklength, avg_mr))
     return average_list
 
 
@@ -56,7 +55,7 @@ def get_key(text, blocklength):
     return key_list                                  # distribution of letters
 
 
-def find_smallest_mr(average_list):# because smallest mr is likely to be the keylenght this works most likely
+def find_smallest_mr(average_list):# because smallest mr is likely to be the keylenght this most likely works
     for i, entry in enumerate(average_list):
         if entry > 0.06:    #because rauheit of Laurem about 0.06 this works
             return i + 1
@@ -81,12 +80,21 @@ def get_index_of_min(list):
             return i
 
 
+def decrypt(crypto_text, key_list):
+    decrypt_text_list = list()
+    for place_nr, letter in enumerate(crypto_text):
+        decrypt_text_list.append(chr((ord(letter) - key_list[place_nr % len(key_list)]) % 128))
+    return str("".join(decrypt_text_list))
+
+
 LANGUAGE = open("lorem.txt", "r").read()    #Language is Lorem in this case but can be changed if needed
 LANG_DICT = calc_language_e_dictionary(LANGUAGE)
-
-
-
-text = open("encrypted-lorem-2.txt", "r").read()
-blocklength = find_smallest_mr(brute_rauheit(text))
-print(get_key(text, blocklength))
-
+crypt_in = open(sys.argv[1], "r")
+crypt_text = crypt_in.read()
+block_length = find_smallest_mr(brute_rauheit(crypt_text))
+key = get_key(crypt_text, block_length)
+clear_text = decrypt(crypt_text, key)
+clear_out = open(sys.argv[2], "w")
+clear_out.write(clear_text)
+crypt_in.close()
+clear_out.close()
