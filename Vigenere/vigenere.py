@@ -64,16 +64,17 @@ def find_smallest_mr(average_list):# because smallest mr is likely to be the key
 
 def calc_metric(count_dict): #calculate a metric that is small if the number of letters is close to the expected number
                           # of letters in the original language
-    chi_sum = 0
+    metric_sum = 0
     for entry in count_dict:
         if entry not in LANG_DICT:
             expected_count = 0
         else:
             expected_count = LANG_DICT[entry]
         count = count_dict[entry]
-        chi = (count - expected_count) ** 2
-        chi_sum += chi
-    return math.sqrt(chi_sum)
+        temp = (count - expected_count) ** 2
+        metric_sum += temp
+    return math.sqrt(metric_sum)
+
 
 
 def get_index_of_min(iterable):
