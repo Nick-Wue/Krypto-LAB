@@ -1,5 +1,5 @@
-import struct
-import sys
+#!/usr/bin/env python -W ignore::DeprecationWarning
+import argparse
 import string
 import BitVector# https://engineering.purdue.edu/kak/dist/BitVector-3.1.1.html documentation
                  # very efficient for bitwise operations
@@ -11,21 +11,46 @@ def left_cyclic_shift(key_bitvector, n):
     return key_bitvector[0:original_length]  #cut vector to original length
 
 
-permutation_in = open("permutation.txt", "r")
+def check_hex(key): #checks if key is hexadecimal
+    for letters in key:
+        if letters not in string.hexdigits:
+            return False
+    return True
+
+#setting up argument parser
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument("-n", "--number_of_keys", type=int, default=16, help="set how many keys are generated")
+arg_parser.add_argument("key", type=str, help="set the key in hexadecimal and length according to the permutation")
+arg_parser.add_argument("-o", "--output_file", type=str, help="define an output file", default="output.txt")
+arg_parser.add_argument("-p", "--permutation", type=str, help="set a custom permutation", default="permutation.txt")
+arguments = arg_parser.parse_args()
+
+
+permutation_in = open(arguments.permutation, "r")
 permutation_list = permutation_in.read()[1:-2:1].split(",") #prep permutation list
 permutation_list_int = [int(i) for i in permutation_list] #convert to contain integers for BitVectors permute()
 permutation_in.close()
-key_number = int(sys.argv[1])
-kbv = BitVector.BitVector(hexstring="A153B2142231917A")
+
+#check if key is valid
+if 4 * len(arguments.key) == len(permutation_list) and check_hex(arguments.key):
+    original_key = BitVector.BitVector(hexstring=arguments.key)
+else:
+    print("Given key was wrong. Use -h for usage.")
+    exit()
+
+#generating the required number of keys
 generated_key_list = list()
-
-
-for i in range(key_number):
-    left_key, right_key = kbv.divide_into_two() # splits key into left and right part
+for i in range(arguments.number_of_keys):
+    left_key, right_key = original_key.divide_into_two()  #splits key into left and right part
     left_key = left_cyclic_shift(left_key, 2)
     right_key = left_cyclic_shift(right_key, 2)
-    kbv = left_key + right_key
-    generated_key_list.append(str(kbv.permute(permutation_list_int)))
+    original_key = left_key + right_key
+    generated_key_list.append(str(original_key.permute(permutation_list_int)))
 
-print(generated_key_list)
-
+#set an output file if given argument
+if arguments.output_file:
+    output_file = open(arguments.output_file, "w")
+    output_file.write(str(generated_key_list))
+    output_file.close()
+else:
+    print(str(generated_key_list))
