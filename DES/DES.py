@@ -55,12 +55,12 @@ def function(bit_vector, round_key):  # calculates f on given block
 
 
 def pad_and_slice(cleartext):
-    zeroes = ""
+    padding = ""
     block_list = list()
     if len(cleartext) % 16 != 0:
-        zeroes_to_pad = (len(cleartext) // 16 + 1) * 16 - len(cleartext)
-        zeroes = zeroes_to_pad * " "
-    cleartext = "".join((cleartext, zeroes))
+        times_to_pad = (len(cleartext) // 16 + 1) * 16 - len(cleartext)
+        padding = times_to_pad * " "
+    cleartext = "".join((cleartext, padding))
     number_of_blocks = len(cleartext) // 16
     for i in range(number_of_blocks):
         block_list.append(BitVector.BitVector(textstring=cleartext[16 * i: 16 * i + 16]))  # cut text in 128 Bit long blocks
