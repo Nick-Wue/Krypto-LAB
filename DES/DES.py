@@ -74,34 +74,60 @@ def encrypt_blocked_clear(blocked_list, key_list):
     return encrypted_text
 
 
-def fetch_files():
-    text_in = open(arguments.input_file, "r")
-    text = text_in.read()
-    text_in.close()
+def fetch_key_list():
     key_in = open(arguments.key_file, "r")
     key_list = list()
     hex_key_list = key_in.read()[1:-2].split(",")
     for key in hex_key_list:
         key_list.append(BitVector.BitVector(hexstring=key.replace("'", "").replace(" ", "")))
     key_in.close()
-    return text, key_list
+    return key_list
 
 
- def output_to_files(text):
+def fetch_from_bytefile():
+    bit_vector_list = list()
+    bit_vector_reader = BitVector.BitVector(filename=arguments.input_file)
+    while bit_vector_reader.more_to_read:
+        bv_read = bit_vector_reader.read_bits_from_file(128)
+        bit_vector_list.append(bv_read)
+    bit_vector_reader.close_file_object()
+    return bit_vector_list
+
+
+def output_to_files(text):
     text_out = open(arguments.output_file, "w")
     text_out.write(text)
     text_out.close()
 
 
+def decrypt(blocked_text, key_list):
+    decrypted_list = list()
+    for i in blocked_text:
+        decrypted_list.append(encrypt_block(i, key_list))
+    return decrypted_list
+
+
+def output_as_bitfile(decrypted_list):
+    bit_out = open(arguments.output_file + ".bit", "wb")
+    for i in decrypted_list:
+        i.write_to_file(bit_out)
+    bit_out.close()
+
+
 def main():
-    text, key_list = fetch_files()
-    blocked_text = pad_and_slice(text)
+    key_list = fetch_key_list()
     if arguments.decrypt_flag:
         key_list = key_list[::-1]
-    cypher_text = encrypt_blocked_clear(blocked_text, key_list)
-    if arguments.decrypt_flag:
+        blocked_text = fetch_from_bytefile()
+        cypher_text = encrypt_blocked_clear(blocked_text, key_list)
         cypher_text = remove_padding(cypher_text)
-    output_to_files(cypher_text)
+        output_to_files(cypher_text)
+    else:
+        text_in = open(arguments.input_file, "r")
+        text = text_in.read()
+        blocked_text = pad_and_slice(text)
+        decrypted_list = decrypt(blocked_text, key_list)
+        output_as_bitfile(decrypted_list)
 
 
 if __name__ == "__main__":
