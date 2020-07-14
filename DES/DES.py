@@ -87,7 +87,7 @@ def fetch_files():
     return text, key_list
 
 
-def output_to_files(text):
+ def output_to_files(text):
     text_out = open(arguments.output_file, "w")
     text_out.write(text)
     text_out.close()
