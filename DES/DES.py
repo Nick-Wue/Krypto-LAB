@@ -16,7 +16,7 @@ s_box = s_box_in.read()[1:-2].split(",")  # read s-box as constant
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("key_file", type=str, help="text file containing 16 round keys")
-arg_parser.add_argument("input_file", type=str, help="text file to be encrypted")
+arg_parser.add_argument("input_file", type=str, help="text file to be encrypted / decrypted")
 arg_parser.add_argument("-d", "--decrypt_flag", action="store_true", default=False, help="enable decryption mode")
 arg_parser.add_argument("-o", "--output_file", type=str, default="output.txt", help="set an output file")
 arguments = arg_parser.parse_args()

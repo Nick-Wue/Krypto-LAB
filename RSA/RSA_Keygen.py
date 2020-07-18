@@ -53,8 +53,8 @@ def find_prime():   # run through likely prime candidates and test them with mil
     return x
 
 
-def write_keys_to_file(key, mod):
-    key_out = open("key.txt", "w")
+def write_keys_to_file(key, mod, file_name):
+    key_out = open(file_name, "w")
     key_out.write(str((key, mod)))
     key_out.close()
 
@@ -69,7 +69,9 @@ def main():
     phi = (p - 1) * (q - 1)
     n = p * q
     ggT, lam, my = ext_euclidean_algorithm(phi, E)
-    write_keys_to_file(lam, n)
+    write_keys_to_file(lam, n, "private_key.txt")
+    write_keys_to_file(3, n, "public_key.txt")
+
 
 if __name__ == "__main__":
     main()
